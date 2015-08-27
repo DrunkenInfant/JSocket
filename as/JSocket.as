@@ -4,6 +4,7 @@ package {
     import flash.net.Socket;
     import flash.system.Security;
     import flash.utils.*;
+    import mx.utils.Base64Encoder;
 
     import flash.external.*;
 
@@ -84,8 +85,12 @@ package {
 
         private static function dataHandler(event:Event, socid:int):void {
             var soc:Socket = sockets[socid];
-            var buffer:String = soc.readUTFBytes(soc.bytesAvailable);
-            ExternalInterface.call('JSocket.dataHandler', socid, buffer.replace(ESCAPER_REG, '\\\\'));
+            var buffer:ByteArray = new ByteArray();
+            var encoder:Base64Encoder = new Base64Encoder();
+            soc.readBytes(buffer);
+            buffer.position = 0;
+            encoder.encodeBytes(buffer);
+            ExternalInterface.call('JSocket.dataHandler', socid, encoder.toString());
         }
 
         private static function errorHandler(event:Event, socid:int):void {
